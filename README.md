@@ -27,9 +27,9 @@ type File interface {
 }
 ```
 
-## Roadmap
+## TODO
 
-1. Learn about https://github.com/spf13/cobra, try to implement a basic command application, which parses the command, arguments, flags, etc.
+Learn about https://github.com/spf13/cobra, try to implement a basic command application, which parses the command, arguments, flags, etc.
 
 ```bash
 $ depot server "./videos" --addr ":80"
