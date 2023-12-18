@@ -8,7 +8,7 @@ Depot is running on ::1338
 ```
 
 ```bash
-$ depot client "::1138" --path "/root"
+$ depot client "::1138" -o "/depot"
 Depot client is successfully connected!
 ```
 
@@ -29,16 +29,19 @@ type File interface {
 
 ## TODO
 
-Learn about https://github.com/spf13/cobra, try to implement a basic command application, which parses the command, arguments, flags, etc.
+1. Once you start a server with a path to share, the server is waiting for the clients to connect and receive the contents of the specified path immediately.
 
 ```bash
-$ depot server "./videos" --addr ":80"
-Command: server
-Args: ./videos
-Flags: addr=:80
-
-$ depot client ":80"
-Command: client
-Args: :80
-Flags:
+$ depot server "./depot/server"
+Depot is running on ::1338
 ```
+
+2. Once a client is connected, the files from the server should start downloading immediately to the specified `-o` output path.
+
+```bash
+$ depot client -o "./depot/client" "::1138"
+Depot client is successfully connected!
+```
+
+3. To solve this problem we need to decide on the best protocol for such data sharing.
+4. Put all the internal server and client logic into the `internal` package in the root (`internal/server` and `internal/client`).
