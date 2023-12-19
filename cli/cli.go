@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const Version = "v0.1"
+const Version = "0.1"
 
 func Run() {
 
@@ -24,7 +24,7 @@ func Run() {
 			Use:   "version",
 			Short: "Print the version number of depot",
 			Run: func(cmd *cobra.Command, args []string) {
-				fmt.Println("depot", Version)
+				fmt.Println("depot", "v"+Version)
 			},
 		}
 	)
