@@ -24,7 +24,7 @@ func Run() {
 			Use:   "version",
 			Short: "Print the version number of depot",
 			Run: func(cmd *cobra.Command, args []string) {
-				fmt.Println("depot", "v"+Version)
+				fmt.Println("depot", Version)
 			},
 		}
 	)
