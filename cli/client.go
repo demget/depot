@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/demget/depot/internal/server"
+	"github.com/demget/depot/pkg/netaddr"
+
 	"github.com/spf13/cobra"
 )
 
@@ -13,7 +16,7 @@ func runClient(path, addr string) error {
 		return err
 	}
 
-	_, _, err = splitHostPort(addr)
+	_, _, err = netaddr.SplitHostPort(addr, server.DefaultPort)
 	if err != nil {
 		return err
 	}

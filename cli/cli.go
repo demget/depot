@@ -10,11 +10,10 @@ import (
 const Version = "0.1"
 
 func Run() {
-
 	var (
 		rootCmd = &cobra.Command{
 			Use:   "depot",
-			Short: "depot",
+			Short: "📦 Depot v" + Version,
 			Run: func(cmd *cobra.Command, args []string) {
 				cmd.Help()
 			},
@@ -32,6 +31,9 @@ func Run() {
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(NewCmdServer())
 	rootCmd.AddCommand(NewCmdClient())
+
+	root
+	rootCmd.CompletionOptions.DisableDefaultCmd = true
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
