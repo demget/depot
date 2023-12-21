@@ -3,6 +3,8 @@ package server
 import (
 	"io"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/pin/tftp"
 )
@@ -28,6 +30,11 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) readHandler(filename string, rf io.ReaderFrom) error {
+	err := s.checkDirAccess(s.path + filename)
+	if err != nil {
+		return err
+	}
+
 	file, err := os.Open(s.path + filename)
 	if err != nil {
 		return err
@@ -43,6 +50,11 @@ func (s *Server) readHandler(filename string, rf io.ReaderFrom) error {
 }
 
 func (s *Server) writeHandler(filename string, wt io.WriterTo) error {
+	err := s.checkDirAccess(s.path + filename)
+	if err != nil {
+		return err
+	}
+
 	file, err := os.OpenFile(s.path+filename, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0644)
 	if err != nil {
 		return err
@@ -54,5 +66,23 @@ func (s *Server) writeHandler(filename string, wt io.WriterTo) error {
 	}
 
 	s.dataServer.Shutdown()
+	return nil
+}
+
+func (s Server) checkDirAccess(filename string) error {
+	rootAbs, err := filepath.Abs(s.path)
+	if err != nil {
+		return err
+	}
+
+	fileAbs, err := filepath.Abs(filename)
+	if err != nil {
+		return err
+	}
+
+	if !strings.HasPrefix(fileAbs, rootAbs) {
+		return os.ErrPermission
+	}
+
 	return nil
 }
