@@ -32,7 +32,6 @@ func Run() {
 	rootCmd.AddCommand(NewCmdServer())
 	rootCmd.AddCommand(NewCmdClient())
 
-	root
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 
 	if err := rootCmd.Execute(); err != nil {
