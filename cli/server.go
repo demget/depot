@@ -6,7 +6,7 @@ import (
 
 	"github.com/demget/depot/internal/server"
 	"github.com/demget/depot/pkg/netaddr"
-	
+
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +16,13 @@ func runServer(path, addr string) error {
 		return err
 	}
 
-	_, _, err = netaddr.SplitHostPort(addr, server.DefaultPort)
+	host, port, err := netaddr.SplitHostPort(addr, server.DefaultPort)
+	if err != nil {
+		return err
+	}
+
+	s := server.New(host+":"+port, path)
+	err = s.Start()
 	if err != nil {
 		return err
 	}

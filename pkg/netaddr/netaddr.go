@@ -9,6 +9,9 @@ func SplitHostPort(addr, defaultPort string) (host, port string, err error) {
 	}
 
 	host, port = u.Hostname(), u.Port()
+	if host == "" {
+		host = "localhost"
+	}
 	if port == "" {
 		port = defaultPort
 	}

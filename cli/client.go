@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/demget/depot/internal/client"
 	"github.com/demget/depot/internal/server"
 	"github.com/demget/depot/pkg/netaddr"
 
@@ -16,7 +17,17 @@ func runClient(path, addr string) error {
 		return err
 	}
 
-	_, _, err = netaddr.SplitHostPort(addr, server.DefaultPort)
+	host, port, err := netaddr.SplitHostPort(addr, server.DefaultPort)
+	if err != nil {
+		return err
+	}
+
+	c, err := client.New(host+":"+port, path)
+	if err != nil {
+		return err
+	}
+
+	err = c.Recieve("/test.txt")
 	if err != nil {
 		return err
 	}
