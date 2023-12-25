@@ -22,7 +22,12 @@ func runClient(path, addr string) error {
 		return err
 	}
 
-	c, err := client.New(host+":"+port, path)
+	tftpc, err := tftp.NewClient(host+":"+port, &tftp.FS{})
+	if err != nil {
+		return err
+	}
+
+	c, err := client.New(tftpc, path)
 	if err != nil {
 		return err
 	}
