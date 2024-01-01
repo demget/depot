@@ -1,9 +1,11 @@
 package netfs
 
-import "io/fs"
+import (
+	"io/fs"
+)
 
 // Server represents a server that shares the FS with its clients.
-// Server should implement at least read only file transfering.
+// Server should implement read only file transfering.
 type Server interface {
 	Start(root fs.FS) error
 	Stop() error
@@ -14,3 +16,5 @@ type Client interface {
 	Connect() (fs.FS, error)
 	Disconnect() error
 }
+
+const DefaultFS = "tftp"

@@ -2,10 +2,9 @@ package cli
 
 import (
 	"fmt"
-	"io/fs"
 	"os"
 
-	"github.com/demget/depot/netfs/tftpfs"
+	"github.com/demget/depot/internal"
 	"github.com/spf13/cobra"
 )
 
@@ -15,19 +14,16 @@ func runClient(path, addr string) error {
 		return err
 	}
 
-	s := tftpfs.NewClient(addr)
-	fsys, err := s.Connect()
+	c, err := internal.NewClient(addr)
 	if err != nil {
 		return err
 	}
 
-	buf, err := fs.ReadFile(fsys, "cli.go")
-	if err != nil {
+	if err = c.Connect(); err != nil {
 		return err
 	}
 
-	err = os.WriteFile("test.txt", buf, 0755)
-	if err != nil {
+	if err = c.Sync(path); err != nil {
 		return err
 	}
 
