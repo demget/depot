@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/demget/depot/internal/server"
-	"github.com/demget/depot/pkg/netaddr"
+	"github.com/demget/depot/netfs/tftpfs"
 
 	"github.com/spf13/cobra"
 )
@@ -16,13 +15,7 @@ func runServer(path, addr string) error {
 		return err
 	}
 
-	host, port, err := netaddr.SplitHostPort(addr, server.DefaultPort)
-	if err != nil {
-		return err
-	}
-
-	s := server.New(host+":"+port, path)
-	err = s.Start()
+	err = tftpfs.NewServer(addr).Start(os.DirFS(path))
 	if err != nil {
 		return err
 	}

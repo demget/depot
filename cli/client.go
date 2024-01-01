@@ -2,12 +2,10 @@ package cli
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 
-	"github.com/demget/depot/internal/client"
-	"github.com/demget/depot/internal/server"
-	"github.com/demget/depot/pkg/netaddr"
-
+	"github.com/demget/depot/netfs/tftpfs"
 	"github.com/spf13/cobra"
 )
 
@@ -17,22 +15,18 @@ func runClient(path, addr string) error {
 		return err
 	}
 
-	host, port, err := netaddr.SplitHostPort(addr, server.DefaultPort)
+	s := tftpfs.NewClient(addr)
+	fsys, err := s.Connect()
 	if err != nil {
 		return err
 	}
 
-	tftpc, err := tftp.NewClient(host+":"+port, &tftp.FS{})
+	buf, err := fs.ReadFile(fsys, "cli.go")
 	if err != nil {
 		return err
 	}
 
-	c, err := client.New(tftpc, path)
-	if err != nil {
-		return err
-	}
-
-	err = c.Recieve("/test.txt")
+	err = os.WriteFile("test.txt", buf, 0755)
 	if err != nil {
 		return err
 	}
