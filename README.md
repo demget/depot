@@ -15,33 +15,22 @@ Depot client is successfully connected!
 ## Basic concept
 
 ```go
-type WalkFn = func(string, *File, error) error
+package fs
+
+import (
+	"io"
+    "io/fs"
+)
 
 type FS interface {
-    Open(string) (*File, error)
-    Walk(string, WalkFn) error
+    fs.FS
+    
+    WriteFile(name string, w io.WriterTo) error
 }
-
-type File interface {
-    // ...
-}
-```
+``` 
 
 ## TODO
 
-1. Once you start a server with a path to share, the server is waiting for the clients to connect and receive the contents of the specified path immediately.
-
-```bash
-$ depot server "./depot/server"
-Depot is running on ::1338
-```
-
-2. Once a client is connected, the files from the server should start downloading immediately to the specified `-o` output path.
-
-```bash
-$ depot client -o "./depot/client" "::1138"
-Depot client is successfully connected!
-```
-
-3. To solve this problem we need to decide on the best protocol for such data sharing.
-4. Put all the internal server and client logic into the `internal` package in the root (`internal/server` and `internal/client`).
+1. Document all the code inside `fs` and `internal` packages.
+2. Test whether the current implementation sync the whole dir.
+3. Implement a hidden system file `.depot` to store the metadata (as http communication channel alternative).

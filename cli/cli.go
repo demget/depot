@@ -18,7 +18,6 @@ func Run() {
 				cmd.Help()
 			},
 		}
-
 		versionCmd = &cobra.Command{
 			Use:   "version",
 			Short: "Print the version number of depot",
@@ -32,7 +31,6 @@ func Run() {
 	rootCmd.AddCommand(NewCmdServer())
 	rootCmd.AddCommand(NewCmdClient())
 
-	root
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 
 	if err := rootCmd.Execute(); err != nil {
