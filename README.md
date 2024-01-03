@@ -15,20 +15,22 @@ Depot client is successfully connected!
 ## Basic concept
 
 ```go
-type WalkFn = func(string, *File, error) error
+package fs
+
+import (
+	"io"
+    "io/fs"
+)
 
 type FS interface {
-    Open(string) (*File, error)
-    Walk(string, WalkFn) error
+    fs.FS
+    
+    WriteFile(name string, w io.WriterTo) error
 }
-
-type File interface {
-    // ...
-}
-```
+``` 
 
 ## TODO
 
-1. Create the proper `fs` package concepts: `FS`, `File`, `Client`, `Server`.
-2. Create a `fs/tftp` server implementation.
-3. Remeber about the review comments and style in general, document your code.
+1. Document all the code inside `fs` and `internal` packages.
+2. Test whether the current implementation sync the whole dir.
+3. Implement a hidden system file `.depot` to store the metadata (as http communication channel alternative).
