@@ -18,7 +18,6 @@ func Run() {
 				cmd.Help()
 			},
 		}
-
 		versionCmd = &cobra.Command{
 			Use:   "version",
 			Short: "Print the version number of depot",
