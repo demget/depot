@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/demget/depot/fs/osfs"
 	"github.com/demget/depot/internal/client"
@@ -11,11 +10,6 @@ import (
 )
 
 func runClient(addr, path string) error {
-	err := os.MkdirAll(path, os.ModePerm)
-	if err != nil {
-		return err
-	}
-
 	c, err := client.New(osfs.New(path), addr)
 	if err != nil {
 		return err

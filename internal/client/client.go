@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bytes"
 	"net/http"
 
 	"github.com/demget/depot/fs"
@@ -11,12 +12,12 @@ import (
 )
 
 type Client struct {
-	fs   fs.FS        // write-only filesystem
-	http *http.Client // communication channel
-	tftp *tftp.Client // file transfer channel
+	fs   fs.WriteFileFS // write-only filesystem
+	http *http.Client   // communication channel
+	tftp *tftp.Client   // file transfer channel
 }
 
-func New(fs fs.FS, addr string) (*Client, error) {
+func New(fs fs.WriteFileFS, addr string) (*Client, error) {
 	host, port, err := netaddr.SplitHostPort(addr, internal.DefaultPort)
 	if err != nil {
 		return nil, err
@@ -39,5 +40,8 @@ func (c *Client) Read(name string) error {
 	if err != nil {
 		return err
 	}
-	return c.fs.WriteFile(name, wt)
+	var buf bytes.Buffer
+	wt.WriteTo(&buf)
+	println(buf.String())
+	return nil //c.fs.WriteFile(name, wt)
 }
