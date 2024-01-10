@@ -13,7 +13,6 @@ import (
 
 type Client struct {
 	fs   fs.WriteFileFS // write-only filesystem
-	http *http.Client   // communication channel
 	tftp *tftp.Client   // file transfer channel
 }
 
@@ -30,7 +29,6 @@ func New(fs fs.WriteFileFS, addr string) (*Client, error) {
 
 	return &Client{
 		fs:   fs,
-		http: &http.Client{},
 		tftp: client,
 	}, nil
 }
@@ -40,8 +38,5 @@ func (c *Client) Read(name string) error {
 	if err != nil {
 		return err
 	}
-	var buf bytes.Buffer
-	wt.WriteTo(&buf)
-	println(buf.String())
-	return nil //c.fs.WriteFile(name, wt)
+	return c.fs.WriteFile(name, wt)
 }

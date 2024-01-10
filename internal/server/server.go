@@ -3,7 +3,7 @@ package server
 import (
 	"fmt"
 	"io"
-	"strings"
+	"bytes"
 
 	"github.com/demget/depot/fs"
 
@@ -11,8 +11,7 @@ import (
 )
 
 type Server struct {
-	fs fs.FS // read-only filesystem
-	//	http *http.Server // communication channel
+	fs   fs.FS        // read-only filesystem
 	tftp *tftp.Server // file transfer channel
 	addr string
 }
@@ -32,32 +31,37 @@ func (s *Server) Stop() error {
 	return nil
 }
 
-func (s *Server) readHandler(name string, rf io.ReaderFrom) error {
-	// handle meta files in ".." directory
-	// since FS is by default read-only,
-	// we can't write real files here
-	// it's also safe because FS wouldn't
-	// permit to read anything from above root dir.
+func (s *Server) readHandler(name string, rf io.ReaderFrom) (err error) {
+	var file io.ReaderFrom
+
 	if name == ".." {
-		var files string
+		// Handle meta files in ".." directory. Since FS is read-only by default,
+		// we can't write real files here, it's also safe because FS wouldn't
+		// permit to read anything from the dir above root.
 
-		s.fs.Walk(func(path string, err error) error {
-			files = fmt.Sprintln(files, path)
-			return nil
-		})
+		meta, err := s.fs.Meta()
+		if err != nil {
+			return err
+		}
 
-		_, err := rf.ReadFrom(strings.NewReader(files))
-		return err
+		data, err := json.Marshal(meta)
+		if err != nil {
+			return err
+		}
+
+		file = bytes.NewReader(data)
+	} else {
+		file, err = s.fs.Open(name)
+		if err != nil {
+			return err
+		}
 	}
 
-	file, err := s.fs.Open(name)
-	if err != nil {
-		return err
-	}
-	_, err = rf.ReadFrom(file)
+	_, err := rf.ReadFrom(file)
 	return err
 }
 
 func (s *Server) writeHandler(name string, wt io.WriterTo) error {
+	// Write is not allowed for the server.
 	return fs.ErrPermission
 }

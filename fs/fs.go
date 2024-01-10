@@ -1,3 +1,8 @@
+// Package fs contains of Depot filesystem interfaces, where
+// each of the subpackages is an implementation of these interfaces.
+// It is being used by the Depot's client and server modules.
+// The FS interface provides a basic set of functions to interact with
+// any kind filesystem-like environment.
 package fs
 
 import (
@@ -6,43 +11,31 @@ import (
 )
 
 var (
+	// ErrPermission is a shortcut to the std fs.ErrPermission.
 	ErrPermission = fs.ErrPermission
 )
 
-// Depot filesystem interfaces
-// From caller perspective all the storage types
-// like gdrive/telegram/osfs should behave just like
-// normal filesystem, caller shouldn't be concerned
-// with the implementation details of each filesystem
-
+// WalkFunc is a simplied walk function used for depot FS.
 type WalkFunc func(path string, err error) error
 
-// Read-only filesystem
+// FS is a read-only fs used primarily by the server.
 type FS interface {
-	Walk(fn WalkFunc) error
-	Open(name string) (File, error)
+	fs.FS
+
+	// Meta returns the fs metadata.
+	Meta() (Meta, error)
 }
 
-// Read-Write filesystem
-type RWFS interface {
+// WriteFS is a read-write fs used primarily by the client.
+type WriteFS interface {
 	FS
-	ReadFile(name string) ([]byte, error)
-}
 
-type ReadFileFS interface {
-	FS
+	// WriteFile writes the file using io.WriterTo.
 	WriteFile(name string, w io.WriterTo) error
 }
 
-type WriteFileFS interface {
-	ReadFileFS
-	RWFS
-	WriteFile(name string, w io.WriterTo) error
-}
-
-// Read-Write file interface. It should behave exact
-// like fs.File, but with Write() method
-type File interface {
-	fs.File
-	Write([]byte) (n int, err error)
+// Meta represents useful data of the fs.
+type Meta struct {
+	// Path is a list of all the files on the fs.
+	Path []string
 }
