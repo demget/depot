@@ -15,7 +15,7 @@ var (
 	ErrPermission = fs.ErrPermission
 )
 
-// WalkFunc is a simplied walk function used for depot FS.
+// WalkFunc is a simplified walk function used for depot FS.
 type WalkFunc func(path string, err error) error
 
 // FS is a read-only fs used primarily by the server.
@@ -36,6 +36,6 @@ type WriteFS interface {
 
 // Meta represents useful data of the fs.
 type Meta struct {
-	// Path is a list of all the files on the fs.
-	Path []string
+	// Files is a list of all the files on the fs.
+	Files []string
 }

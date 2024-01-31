@@ -1,9 +1,9 @@
 package server
 
 import (
-	"fmt"
-	"io"
 	"bytes"
+	"encoding/json"
+	"io"
 
 	"github.com/demget/depot/fs"
 
@@ -32,7 +32,7 @@ func (s *Server) Stop() error {
 }
 
 func (s *Server) readHandler(name string, rf io.ReaderFrom) (err error) {
-	var file io.ReaderFrom
+	var file io.Reader
 
 	if name == ".." {
 		// Handle meta files in ".." directory. Since FS is read-only by default,
@@ -49,7 +49,7 @@ func (s *Server) readHandler(name string, rf io.ReaderFrom) (err error) {
 			return err
 		}
 
-		file = bytes.NewReader(data)
+		file = bytes.NewBuffer(data)
 	} else {
 		file, err = s.fs.Open(name)
 		if err != nil {
@@ -57,7 +57,7 @@ func (s *Server) readHandler(name string, rf io.ReaderFrom) (err error) {
 		}
 	}
 
-	_, err := rf.ReadFrom(file)
+	_, err = rf.ReadFrom(file)
 	return err
 }
 
