@@ -2,23 +2,37 @@ package osfs
 
 import (
 	"io"
-	"io/fs"
 	"os"
+	iofs "io/fs"
+
+	"github.com/demget/depot/fs"
 )
+
+type FS struct {
+	iofs.FS
+}
 
 func New(dir string) *FS {
 	return &FS{FS: os.DirFS(dir)}
 }
 
-type FS struct {
-	fs.FS
+func (f *FS) WriteFile(name string, wt io.WriterTo) error {
+	return os.WriteFile(name, wt, 0644)
 }
 
-func (fs FS) WriteFile(name string, w io.WriterTo) error {
-	file, err := os.Create(name)
-	if err != nil {
-		return err
+func (f *FS) Meta() (fs.Meta, error) {
+	return fs.Meta{
+		Path: f.metaPath(),
+	}, nil
+}
+
+func (f *FS) metaPath() (path []string) {
+	walk := func(p string, d iofs.DirEntry, _ error) error {
+		if !d.IsDir() {
+			path = append(path, p)
+		}
+		return nil
 	}
-	_, err = w.WriteTo(file)
-	return err
+	iofs.WalkDir(f, ".", walk)
+	return path
 }
