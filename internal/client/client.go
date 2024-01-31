@@ -2,8 +2,7 @@ package client
 
 import (
 	"bytes"
-	"net/http"
-
+	"encoding/json"
 	"github.com/demget/depot/fs"
 	"github.com/demget/depot/internal"
 	"github.com/demget/depot/pkg/netaddr"
@@ -12,11 +11,11 @@ import (
 )
 
 type Client struct {
-	fs   fs.WriteFileFS // write-only filesystem
-	tftp *tftp.Client   // file transfer channel
+	fs   fs.WriteFS   // write-only filesystem
+	tftp *tftp.Client // file transfer channel
 }
 
-func New(fs fs.WriteFileFS, addr string) (*Client, error) {
+func New(fs fs.WriteFS, addr string) (*Client, error) {
 	host, port, err := netaddr.SplitHostPort(addr, internal.DefaultPort)
 	if err != nil {
 		return nil, err
@@ -31,6 +30,22 @@ func New(fs fs.WriteFileFS, addr string) (*Client, error) {
 		fs:   fs,
 		tftp: client,
 	}, nil
+}
+
+func (c *Client) List() ([]string, error) {
+	wt, err := c.tftp.Receive("..", "octet")
+	if err != nil {
+		return nil, err
+	}
+
+	var meta fs.Meta
+	var buf bytes.Buffer
+	_, err = wt.WriteTo(&buf)
+	if err != nil {
+		return nil, err
+	}
+
+	return meta.Files, json.Unmarshal(buf.Bytes(), &meta)
 }
 
 func (c *Client) Read(name string) error {
