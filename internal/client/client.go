@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"encoding/json"
+
 	"github.com/demget/depot/fs"
 	"github.com/demget/depot/internal"
 	"github.com/demget/depot/pkg/netaddr"
@@ -32,20 +33,19 @@ func New(fs fs.WriteFS, addr string) (*Client, error) {
 	}, nil
 }
 
-func (c *Client) List() ([]string, error) {
+func (c *Client) Meta() (*fs.Meta, error) {
 	wt, err := c.tftp.Receive("..", "octet")
 	if err != nil {
 		return nil, err
 	}
 
-	var meta fs.Meta
 	var buf bytes.Buffer
-	_, err = wt.WriteTo(&buf)
-	if err != nil {
+	if _, err = wt.WriteTo(&buf); err != nil {
 		return nil, err
 	}
 
-	return meta.Files, json.Unmarshal(buf.Bytes(), &meta)
+	var meta fs.Meta
+	return &meta, json.NewDecoder(&buf).Decode(&meta)
 }
 
 func (c *Client) Read(name string) error {

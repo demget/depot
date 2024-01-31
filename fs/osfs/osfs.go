@@ -1,5 +1,5 @@
-// Package osfs implements Depot FS using os.DirFS
-// for RO access plus os.WriteFile
+// Package osfs provides a way to serve your OS filesystem.
+// It implements the depot/fs.
 package osfs
 
 import (
@@ -8,7 +8,6 @@ import (
 	iofs "io/fs"
 	"os"
 	"path"
-	"strings"
 
 	"github.com/demget/depot/fs"
 )
@@ -26,16 +25,14 @@ func (f *FS) WriteFile(name string, wt io.WriterTo) error {
 	if _, err := wt.WriteTo(&buf); err != nil {
 		return err
 	}
-	err := os.WriteFile(name, buf.Bytes(), 0644)
-	if err != nil && strings.Contains(err.Error(), "no such file or directory") {
-		err = os.MkdirAll(path.Dir(name), 0755)
-		if err != nil {
+
+	if _, err := os.Stat(name); os.IsNotExist(err) {
+		if err := os.MkdirAll(path.Dir(name), 0755); err != nil {
 			return err
 		}
-		return os.WriteFile(name, buf.Bytes(), 0644)
 	}
 
-	return err
+	return os.WriteFile(name, buf.Bytes(), 0644)
 }
 
 func (f *FS) Meta() (fs.Meta, error) {

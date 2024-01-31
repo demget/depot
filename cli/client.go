@@ -15,14 +15,13 @@ func runClient(addr, path string) error {
 		return err
 	}
 
-	files, err := c.List()
+	meta, err := c.Meta()
 	if err != nil {
 		return err
 	}
 
-	for _, file := range files {
-		err = c.Read(file)
-		if err != nil {
+	for _, file := range meta.Files {
+		if err := c.Read(file); err != nil {
 			return err
 		}
 	}
