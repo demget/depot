@@ -1,9 +1,13 @@
+// Package osfs provides a way to serve your OS filesystem.
+// It implements the depot/fs.
 package osfs
 
 import (
+	"bytes"
 	"io"
-	"os"
 	iofs "io/fs"
+	"os"
+	"path"
 
 	"github.com/demget/depot/fs"
 )
@@ -17,22 +21,37 @@ func New(dir string) *FS {
 }
 
 func (f *FS) WriteFile(name string, wt io.WriterTo) error {
-	return os.WriteFile(name, wt, 0644)
+	var buf bytes.Buffer
+	if _, err := wt.WriteTo(&buf); err != nil {
+		return err
+	}
+
+	if _, err := os.Stat(name); os.IsNotExist(err) {
+		if err := os.MkdirAll(path.Dir(name), 0755); err != nil {
+			return err
+		}
+	}
+
+	return os.WriteFile(name, buf.Bytes(), 0644)
 }
 
 func (f *FS) Meta() (fs.Meta, error) {
+	files, err := f.metaPath()
+	if err != nil {
+		return fs.Meta{}, err
+	}
 	return fs.Meta{
-		Path: f.metaPath(),
+		Files: files,
 	}, nil
 }
 
-func (f *FS) metaPath() (path []string) {
+func (f *FS) metaPath() (files []string, err error) {
 	walk := func(p string, d iofs.DirEntry, _ error) error {
 		if !d.IsDir() {
-			path = append(path, p)
+			files = append(files, p)
 		}
 		return nil
 	}
-	iofs.WalkDir(f, ".", walk)
-	return path
+	err = iofs.WalkDir(f, ".", walk)
+	return files, err
 }

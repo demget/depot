@@ -14,8 +14,16 @@ func runClient(addr, path string) error {
 	if err != nil {
 		return err
 	}
-	if err := c.Read(path); err != nil {
+
+	meta, err := c.Meta()
+	if err != nil {
 		return err
+	}
+
+	for _, file := range meta.Files {
+		if err := c.Read(file); err != nil {
+			return err
+		}
 	}
 
 	fmt.Printf("Depot client connected to %s successfully!\n", addr)

@@ -1,9 +1,9 @@
 package server
 
 import (
-	"fmt"
-	"io"
 	"bytes"
+	"encoding/json"
+	"io"
 
 	"github.com/demget/depot/fs"
 
@@ -32,13 +32,12 @@ func (s *Server) Stop() error {
 }
 
 func (s *Server) readHandler(name string, rf io.ReaderFrom) (err error) {
-	var file io.ReaderFrom
+	var r io.Reader
 
+	// Handle meta files in ".." directory. Since FS is read-only by default,
+	// we can't write real files here, it's also safe because FS wouldn't
+	// permit to read anything from the dir above root.
 	if name == ".." {
-		// Handle meta files in ".." directory. Since FS is read-only by default,
-		// we can't write real files here, it's also safe because FS wouldn't
-		// permit to read anything from the dir above root.
-
 		meta, err := s.fs.Meta()
 		if err != nil {
 			return err
@@ -49,19 +48,19 @@ func (s *Server) readHandler(name string, rf io.ReaderFrom) (err error) {
 			return err
 		}
 
-		file = bytes.NewReader(data)
+		r = bytes.NewBuffer(data)
 	} else {
-		file, err = s.fs.Open(name)
+		r, err = s.fs.Open(name)
 		if err != nil {
 			return err
 		}
 	}
 
-	_, err := rf.ReadFrom(file)
+	_, err = rf.ReadFrom(r)
 	return err
 }
 
-func (s *Server) writeHandler(name string, wt io.WriterTo) error {
+func (s *Server) writeHandler(_ string, _ io.WriterTo) error {
 	// Write is not allowed for the server.
 	return fs.ErrPermission
 }
